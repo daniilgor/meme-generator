@@ -138,11 +138,26 @@ def safe_generated_path(filename: str) -> Path:
     return path
 
 
+def render_index(
+    *,
+    meme_filename: str | None,
+    error: str | None,
+    top_text: str,
+    bottom_text: str,
+) -> str:
+    return render_template(
+        "index.html",
+        meme_filename=meme_filename,
+        error=error,
+        top_text=top_text,
+        bottom_text=bottom_text,
+    )
+
+
 @app.route("/", methods=["GET"])
 def index() -> str:
     meme_filename = request.args.get("meme")
-    return render_template(
-        "index.html",
+    return render_index(
         meme_filename=meme_filename,
         error=None,
         top_text="",
@@ -157,8 +172,7 @@ def generate() -> str:
     bottom_text = request.form.get("bottom_text", "").strip()
 
     if not uploaded_file or uploaded_file.filename == "":
-        return render_template(
-            "index.html",
+        return render_index(
             meme_filename=None,
             error="Please choose an image file to upload.",
             top_text=top_text,
@@ -166,8 +180,7 @@ def generate() -> str:
         )
 
     if not is_allowed_filename(uploaded_file.filename):
-        return render_template(
-            "index.html",
+        return render_index(
             meme_filename=None,
             error="Unsupported file type. Upload a JPG, PNG, GIF, or WEBP image.",
             top_text=top_text,
@@ -177,8 +190,7 @@ def generate() -> str:
     try:
         image = Image.open(uploaded_file.stream)
     except OSError:
-        return render_template(
-            "index.html",
+        return render_index(
             meme_filename=None,
             error="That file could not be read as an image.",
             top_text=top_text,
@@ -205,6 +217,16 @@ def download_file(filename: str):
     return send_file(path, mimetype="image/png", as_attachment=True, download_name=path.name)
 
 
+@app.errorhandler(413)
+def request_too_large(_error):
+    return render_index(
+        meme_filename=None,
+        error="That file is too large. Please upload an image up to 10MB.",
+        top_text="",
+        bottom_text="",
+    ), 413
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
