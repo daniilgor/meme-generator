@@ -17,6 +17,10 @@ Create memes from your own images. Upload a file, add top and bottom text, then 
    - `python3 app.py`
 4. Open `http://127.0.0.1:5000` in your browser.
 
+## Run in an online editor
+- Install dependencies: `python3 -m pip install -r requirements.txt`
+- Ensure the editor exposes port `5000`, or set a custom port with `PORT=8000 python3 app.py`.
+
 ## Notes
 - Generated images are saved to `generated/`.
 - Upload limit is 10MB per image.
