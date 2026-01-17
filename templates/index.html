@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meme Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Meme Generator</h1>
+        <p>Upload an image, add text, and download your meme.</p>
+      </header>
+
+      <section class="card">
+        <form class="form-grid" action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data">
+          <label for="image">Image file</label>
+          <input id="image" name="image" type="file" accept="image/*" required />
+
+          <label for="top_text">Top text</label>
+          <input
+            id="top_text"
+            name="top_text"
+            type="text"
+            placeholder="TOP TEXT"
+            value="{{ top_text }}"
+          />
+
+          <label for="bottom_text">Bottom text</label>
+          <input
+            id="bottom_text"
+            name="bottom_text"
+            type="text"
+            placeholder="BOTTOM TEXT"
+            value="{{ bottom_text }}"
+          />
+
+          <button type="submit">Generate meme</button>
+        </form>
+
+        {% if error %}
+          <div class="error">{{ error }}</div>
+        {% endif %}
+      </section>
+
+      {% if meme_filename %}
+        <section class="card result">
+          <h2>Your meme</h2>
+          <img src="{{ url_for('meme_file', filename=meme_filename) }}" alt="Generated meme preview" />
+          <div class="actions">
+            <a class="button" href="{{ url_for('download_file', filename=meme_filename) }}">Download meme</a>
+          </div>
+        </section>
+      {% endif %}
+
+      <footer>
+        <p>Supported formats: JPG, PNG, GIF, WEBP. Max upload: 10MB.</p>
+      </footer>
+    </div>
+  </body>
+</html>
